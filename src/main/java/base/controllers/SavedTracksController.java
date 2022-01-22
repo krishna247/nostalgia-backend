@@ -43,13 +43,14 @@ public class SavedTracksController {
         while (savedTracks.getNext() != null) {
             for (var savedTrack:savedTracks.getItems()) {
                 HashMap<String, String> trackInfo = new HashMap<>();
-                trackInfo.put("addedAt", savedTrack.getAddedAt().toString());
+                trackInfo.put("addedAt", String.valueOf(savedTrack.getAddedAt().getTime()));
                 var track = savedTrack.getTrack();
                 trackInfo.put("name", track.getName());
                 trackInfo.put("artist", track.getArtists()[0].getName());
                 trackInfo.put("uri", track.getUri());
                 trackInfo.put("id", track.getUri());
                 trackInfo.put("preview_url", track.getPreviewUrl());
+                trackInfo.put("albumArt",track.getAlbum().getImages()[0].getUrl());
                 tracksList.add(trackInfo);
             }
             offset = offset + 50;

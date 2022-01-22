@@ -8,6 +8,7 @@ import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
 import se.michaelthelin.spotify.model_objects.credentials.AuthorizationCodeCredentials;
 import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeRequest;
+import base.utils.CheckLocal;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -34,7 +35,9 @@ public class AuthCodeController {
             System.out.println("Error in /login: " + e.getMessage());
         }
         System.out.println(spotifyApi.getAccessToken());
-        response.sendRedirect("http://localhost:3000/login?access_token="+spotifyApi.getAccessToken());
+
+        String redirectURL = CheckLocal.checkIsLocal() ? "http://localhost:3000/login?access_token=" : "http://3.65.240.94:3000/login?access_token=";
+        response.sendRedirect(redirectURL+spotifyApi.getAccessToken());
     }
 }
 
