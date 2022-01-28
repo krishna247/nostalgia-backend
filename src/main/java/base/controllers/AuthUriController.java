@@ -17,14 +17,10 @@ public class AuthUriController {
     @GetMapping("/auth")
     public String GetLoginURI(){
         System.out.println("Function: Auth");
-//        String redirectURL = CheckLocal.checkIsLocal() ? "http://localhost:8080/login" : "http://3.65.240.94:8080/login";
 
         AuthorizationCodeUriRequest authorizationCodeUriRequest = spotifyApi.authorizationCodeUri().scope("user-library-read,user-read-email").build();
         URI uri = authorizationCodeUriRequest.execute();
         System.out.println(uri);
         return uri.toString();
     }
-
-
-
 }
