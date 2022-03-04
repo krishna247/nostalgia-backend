@@ -14,23 +14,33 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 public class SavedTracksController {
 
     @Autowired SpotifyApi spotifyApi;
 
-    public Paging<SavedTrack> getTracks(String access_token, int limit, int offset){
+    public List<SavedTrack> getTracksAll(String access_token) {
         spotifyApi.setAccessToken(access_token);
-        Paging<SavedTrack> savedTracks = null;
-        List<HashMap<String,String>> tracksList = new ArrayList<>();
-        try {
-            savedTracks = spotifyApi.getUsersSavedTracks().limit(limit).offset(offset).build().execute();
-        } catch (IOException | ParseException | SpotifyWebApiException e) {
-            e.printStackTrace();
-            System.out.println("Error in search track" + e);
-        }
-        return savedTracks;
+        var requestBuilder = spotifyApi.getUsersSavedTracks().limit(50);
+        List<SavedTrack> tracksList = new ArrayList<>() ;
+        CompletableFuture<Paging<SavedTrack>> tracksPager;
+        int total = 0;
+        do {
+            tracksPager = requestBuilder.build().executeAsync();
+            try {
+                total = tracksPager.get().getTotal();
+                tracksList.addAll(List.of(tracksPager.get().getItems()));
+                requestBuilder.offset(tracksPager.get().getOffset() + 50);
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+                System.out.println("Error in search track" + e);
+            }
+        } while (tracksList.size() < total);
+        System.out.println(tracksList.size());
+        return tracksList;
     }
 
     @GetMapping("/saved-tracks")
@@ -39,22 +49,18 @@ public class SavedTracksController {
         List<HashMap<String,String>> tracksList = new ArrayList<>();
         int offset = 0;
 
-        var savedTracks = getTracks(access_token,50,offset);
-        while (savedTracks.getNext() != null) {
-            for (var savedTrack:savedTracks.getItems()) {
-                HashMap<String, String> trackInfo = new HashMap<>();
-                trackInfo.put("addedAt", String.valueOf(savedTrack.getAddedAt().getTime()));
-                var track = savedTrack.getTrack();
-                trackInfo.put("name", track.getName());
-                trackInfo.put("artist", track.getArtists()[0].getName());
-                trackInfo.put("uri", track.getUri());
-                trackInfo.put("id", track.getUri());
-                trackInfo.put("preview_url", track.getPreviewUrl());
-                trackInfo.put("albumArt",track.getAlbum().getImages()[0].getUrl());
-                tracksList.add(trackInfo);
-            }
-            offset = offset + 50;
-            savedTracks = getTracks(access_token,50,offset);
+        var savedTracks = getTracksAll(access_token);
+        for (var savedTrack:savedTracks) {
+            HashMap<String, String> trackInfo = new HashMap<>();
+            trackInfo.put("addedAt", String.valueOf(savedTrack.getAddedAt().getTime()));
+            var track = savedTrack.getTrack();
+            trackInfo.put("name", track.getName());
+            trackInfo.put("artist", track.getArtists()[0].getName());
+            trackInfo.put("uri", track.getUri());
+            trackInfo.put("id", track.getUri());
+            trackInfo.put("preview_url", track.getPreviewUrl());
+            trackInfo.put("albumArt",track.getAlbum().getImages()[0].getUrl());
+            tracksList.add(trackInfo);
         }
         System.out.println("Returned tracks: "+tracksList.size());
         return tracksList;
