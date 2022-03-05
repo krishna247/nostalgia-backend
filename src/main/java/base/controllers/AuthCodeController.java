@@ -36,7 +36,7 @@ public class AuthCodeController {
         }
         System.out.println(spotifyApi.getAccessToken());
 
-        String redirectURL = CheckLocal.checkIsLocal() ? "http://localhost:3000/login?access_token=" : "http://3.65.240.94:3000/login?access_token=";
+        String redirectURL = CheckLocal.checkIsLocal() ? "http://localhost:3000/finishAuth?access_token=" : "http://krishnaj.me/finishAuth?access_token=";
         response.sendRedirect(redirectURL+spotifyApi.getAccessToken());
     }
 }

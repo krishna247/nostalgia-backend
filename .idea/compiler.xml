@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="SpotifyApp" />
         <module name="SpotifyFindSong" />
+        <module name="nostalgia-backend" />
       </profile>
     </annotationProcessing>
   </component>
@@ -15,6 +16,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="SpotifyApp" options="-parameters" />
       <module name="SpotifyFindSong" options="-parameters" />
+      <module name="nostalgia-backend" options="-parameters" />
     </option>
   </component>
 </project>
